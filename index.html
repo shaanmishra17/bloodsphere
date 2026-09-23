@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodSphere.io - Digital Blood Donation & Emergency Response Platform | Theem College</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts: Inter & Georgia -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ==========================================
+       1. EMERGENCY SOS TICKER RIBBON
+       ========================================== -->
+  <div class="emergency-ticker d-flex align-items-center justify-content-between overflow-hidden">
+    <div class="d-flex align-items-center flex-nowrap" style="white-space: nowrap;">
+      <span class="badge bg-danger pulse-dot-wrapper me-2 px-2 py-1">
+        <span class="pulse-dot me-1"></span> LIVE SOS BROADCAST
+      </span>
+      <div id="emergencyTickerText" class="d-inline-block">
+        Loading emergency broadcasts...
+      </div>
+    </div>
+    <div class="d-none d-md-flex align-items-center small text-white-50">
+      <span class="me-3"><i class="fa-solid fa-phone-volume text-warning me-1"></i> Boisar Helpline: 108 / 102</span>
+      <span><i class="fa-solid fa-hospital text-danger me-1"></i> Theem COE Red Cross Unit</span>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       2. MAIN NAVBAR & ROLE SWITCHER
+       ========================================== -->
+  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top shadow-sm py-2">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand d-flex align-items-center" href="#" onclick="HemoApp.switchRole('public')">
+        <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; box-shadow: 0 2px 8px rgba(220,38,38,0.4);">
+          <i class="fa-solid fa-droplet fs-5"></i>
+        </div>
+        <div>
+          <span class="fw-bold fs-5 tracking-tight text-dark">BLOOD<span class="text-danger">SPHERE</span><span class="text-danger fw-bold fs-6">.io</span></span>
+          <div class="text-muted" style="font-size: 0.68rem; line-height: 1;">Theem College of Engineering • IT Dept Mini Project</div>
+        </div>
+      </a>
+
+      <!-- Role Switcher Pills -->
+      <div class="d-flex align-items-center bg-light p-1 rounded-pill border mx-auto my-2 my-lg-0">
+        <div class="role-pill" data-role="public">
+          <i class="fa-solid fa-earth-americas me-1"></i> Public / Seeker
+        </div>
+        <div class="role-pill" data-role="hospital">
+          <i class="fa-solid fa-hospital me-1"></i> Hospital Portal
+        </div>
+        <div class="role-pill" data-role="admin">
+          <i class="fa-solid fa-shield-halved me-1"></i> Admin Console
+        </div>
+        <div class="role-pill" data-role="donor">
+          <i class="fa-solid fa-heart-pulse me-1"></i> Donor Hub
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#registerDonorModal">
+          <i class="fa-solid fa-user-plus me-1"></i> Register Donor
+        </button>
+        <button class="btn btn-sm btn-danger text-white fw-semibold" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i> Request Blood
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==========================================
+       3. VIEW: PUBLIC / SEEKER (view-public)
+       ========================================== -->
+  <main id="view-public" class="role-view flex-grow-1">
+    <!-- Hero Section -->
+    <div class="py-5 text-white position-relative" style="background: linear-gradient(135deg, #881337 0%, #1e1b4b 100%);">
+      <div class="container py-3">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-7">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 mb-3 rounded-pill fw-semibold">
+              <i class="fa-solid fa-heart me-1"></i> Saving Lives in Boisar, Palghar & Beyond
+            </span>
+            <h1 class="display-5 fw-extrabold mb-3 lh-sm">
+              Bridging the 12,000 Daily Blood Shortage with Instant Response
+            </h1>
+            <p class="lead text-white-70 mb-4" style="font-size: 1.1rem;">
+              Many hospitals still rely on outdated manual phone calls. <strong>BloodSphere.io</strong> connects verified voluntary donors with hospitals in real-time, incentivized by our non-monetary <strong>SpherePoints</strong> ecosystem.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+              <button class="btn btn-danger btn-lg px-4 shadow" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+                <i class="fa-solid fa-bell me-2"></i> Post Emergency Blood Request
+              </button>
+              <button class="btn btn-outline-light btn-lg px-4" data-bs-toggle="modal" data-bs-target="#registerDonorModal">
+                <i class="fa-solid fa-hand-holding-heart me-2"></i> Become a Verified Donor
+              </button>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <!-- Live Impact Stats Card -->
+            <div class="card border-0 rounded-4 shadow-lg p-4 bg-white text-dark">
+              <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                <span>Platform Telemetry</span>
+                <span class="pulse-green"></span>
+              </h5>
+              <div class="row g-3 text-center">
+                <div class="col-4">
+                  <div class="p-3 bg-light rounded-3">
+                    <div class="fs-3 fw-bold text-danger" id="statLivesSaved">120+</div>
+                    <div class="small text-muted">Lives Saved</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-3 bg-light rounded-3">
+                    <div class="fs-3 fw-bold text-primary" id="statVerifiedDonors">18</div>
+                    <div class="small text-muted">Verified Donors</div>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-3 bg-light rounded-3">
+                    <div class="fs-3 fw-bold text-success" id="statFulfilledRequests">14</div>
+                    <div class="small text-muted">Fulfilled SOS</div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 p-2 bg-danger-subtle rounded-3 small text-danger text-center fw-semibold">
+                <i class="fa-solid fa-stopwatch me-1"></i> Average Emergency Match Time: &lt; 9 Minutes
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Map & Interactive Compatibility -->
+    <div class="container my-5">
+      <div class="row g-4">
+        <!-- Interactive Map -->
+        <div class="col-lg-7">
+          <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-bold mb-0">Live Hospital & Donor Hub Map</h5>
+                <small class="text-muted">Real-time geographic response radius in Boisar & Palghar</small>
+              </div>
+              <span class="badge bg-light text-dark border">
+                <i class="fa-solid fa-location-crosshairs text-danger me-1"></i> GPS Active
+              </span>
+            </div>
+            <div id="leafletMap" style="height: 380px; border-radius: 12px;" class="border"></div>
+            <div class="d-flex justify-content-around mt-3 small text-muted">
+              <span><i class="fa-solid fa-hospital text-danger me-1"></i> Hospitals & Blood Banks</span>
+              <span><i class="fa-solid fa-graduation-cap text-primary me-1"></i> Theem College Donor Center</span>
+              <span><i class="fa-solid fa-circle-dot text-success me-1"></i> Active Units</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blood Compatibility Calculator -->
+        <div class="col-lg-5">
+          <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <div class="d-flex align-items-center mb-3">
+              <div class="rounded-circle bg-danger-subtle text-danger p-2 me-2">
+                <i class="fa-solid fa-dna fs-5"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-0">Compatibility Calculator</h5>
+                <small class="text-muted">Find matching donor groups for emergency patients</small>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-semibold text-muted">Select Patient's Blood Group</label>
+              <select class="form-select form-select-lg fw-bold" id="compatRecipientSelect">
+                <option value="O+">O Positive (O+)</option>
+                <option value="O-">O Negative (O-) - Universal Donor</option>
+                <option value="A+">A Positive (A+)</option>
+                <option value="A-">A Negative (A-)</option>
+                <option value="B+">B Positive (B+)</option>
+                <option value="B-">B Negative (B-)</option>
+                <option value="AB+">AB Positive (AB+) - Universal Recipient</option>
+                <option value="AB-">AB Negative (AB-)</option>
+              </select>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 mb-3">
+              <div class="small text-muted fw-bold text-uppercase mb-2">Can Safely Receive From:</div>
+              <div class="row row-cols-3 g-2" id="compatResultBadges">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+
+            <div class="alert alert-info border-0 rounded-3 small mb-0">
+              <i class="fa-solid fa-circle-info me-1"></i> <strong>Note:</strong> O- individuals are Universal Red Cell Donors, while AB+ are Universal Plasma Donors.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- College Challenge & Leaderboard Section -->
+    <div class="container mb-5">
+      <div class="row g-4">
+        <div class="col-lg-6" id="publicChallengeContainer">
+          <!-- College Challenge injected here -->
+        </div>
+        <div class="col-lg-6" id="publicLeaderboardContainer">
+          <!-- Leaderboard injected here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- College Project Credits & Objectives -->
+    <div class="bg-white border-top py-5">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h5 class="fw-bold text-dark mb-2">About The Project</h5>
+            <p class="text-muted small">
+              <strong>BloodSphere.io</strong> is an S.E. Semester-III Mini Project developed under the 
+              <strong>Department of Information Technology Engineering</strong> at 
+              <strong>H. J. Thim Trust's Theem College of Engineering, Boisar</strong>. 
+              Built to solve critical real-world delays in finding blood donors during trauma and surgical emergencies.
+            </p>
+            <div class="row g-2 small text-muted mt-2">
+              <div class="col-6">
+                <i class="fa-solid fa-check text-success me-1"></i> Role-Based Access Control
+              </div>
+              <div class="col-6">
+                <i class="fa-solid fa-check text-success me-1"></i> Admin Verification Pipeline
+              </div>
+              <div class="col-6">
+                <i class="fa-solid fa-check text-success me-1"></i> Gamified SpherePoints Economy
+              </div>
+              <div class="col-6">
+                <i class="fa-solid fa-check text-success me-1"></i> Donor Trust Scoring
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <h5 class="fw-bold text-dark mb-2">Project Team Members</h5>
+            <div class="list-group list-group-flush small">
+              <div class="list-group-item px-0 d-flex justify-content-between">
+                <span><strong>Tanmay Ramesh Parandwal</strong></span>
+                <span class="badge bg-light text-dark border">Roll No: 253135</span>
+              </div>
+              <div class="list-group-item px-0 d-flex justify-content-between">
+                <span><strong>Shaan Dharmendra Mishra</strong></span>
+                <span class="badge bg-light text-dark border">Roll No: 253130</span>
+              </div>
+              <div class="list-group-item px-0 d-flex justify-content-between">
+                <span><strong>Shubham Dibakar Pradhan</strong></span>
+                <span class="badge bg-light text-dark border">Roll No: 253144</span>
+              </div>
+              <div class="list-group-item px-0 d-flex justify-content-between">
+                <span><strong>Sumit Omprakash Pathak</strong></span>
+                <span class="badge bg-light text-dark border">Roll No: 253137</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       4. VIEW: HOSPITAL PORTAL (view-hospital)
+       ========================================== -->
+  <main id="view-hospital" class="role-view flex-grow-1 d-none">
+    <div class="bg-dark text-white py-4 border-bottom">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <span class="badge bg-danger mb-1"><i class="fa-solid fa-hospital-user me-1"></i> Hospital & Blood Bank Terminal</span>
+            <h3 class="fw-bold mb-0">Authorized Emergency Dispatch Center</h3>
+            <p class="text-white-50 small mb-0">Logged in as: <strong>Boisar City & Rural Hospital Network</strong></p>
+          </div>
+          <div>
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+              <i class="fa-solid fa-plus-circle me-1"></i> Create Emergency Blood SOS
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container my-4">
+      <!-- Search Verified Donors Section -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-magnifying-glass text-danger me-2"></i>Search Verified Blood Donors</h5>
+            <small class="text-muted">Only Admin-verified donors with valid medical clearance are displayed</small>
+          </div>
+          <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" id="searchFilterBlood" onchange="HemoApp.filterHospitalDonors()">
+              <option value="ALL">All Blood Groups</option>
+              <option value="O+">O+</option>
+              <option value="O-">O- (Universal)</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB- (Rare)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="hospitalDonorSearchResults">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <!-- Active Hospital Blood Requests Table -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-clipboard-list text-danger me-2"></i>Emergency Requests & Fulfillment</h5>
+            <small class="text-muted">Track SOS requests and record successful donations to credit donor HemoPoints</small>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table custom-table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Request ID</th>
+                <th>Patient & Facility</th>
+                <th>Blood Group</th>
+                <th>Urgency</th>
+                <th>Progress</th>
+                <th>Status</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody id="hospitalRequestsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       5. VIEW: ADMIN CONSOLE (view-admin)
+       ========================================== -->
+  <main id="view-admin" class="role-view flex-grow-1 d-none">
+    <div class="bg-dark text-white py-4 border-bottom">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <span class="badge bg-warning text-dark mb-1"><i class="fa-solid fa-shield-halved me-1"></i> Super Admin Role</span>
+            <h3 class="fw-bold mb-0">System Governance & Verification Center</h3>
+            <p class="text-white-50 small mb-0">H. J. Thim Trust's Theem College of Engineering • IT Department</p>
+          </div>
+          <div>
+            <span class="badge bg-success-subtle text-success border border-success p-2">
+              <i class="fa-solid fa-circle-check me-1"></i> System Operational 100%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container my-4">
+      <!-- Admin Metric Counters -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            <div class="text-muted small">Total Registered Donors</div>
+            <div class="fs-3 fw-bold text-dark" id="adminTotalDonors">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            <div class="text-muted small">Verified Donors</div>
+            <div class="fs-3 fw-bold text-success" id="adminVerifiedDonors">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            <div class="text-muted small">Pending Verification Queue</div>
+            <div class="fs-3 fw-bold text-warning" id="adminPendingQueue">0</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            <div class="text-muted small">Active Emergency Broadcasts</div>
+            <div class="fs-3 fw-bold text-danger" id="adminActiveRequests">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Donor Verification Queue -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold mb-0 text-danger">
+              <i class="fa-solid fa-user-clock me-2"></i>Pending Donor Verification Queue (Slide 7 Core Feature)
+            </h5>
+            <small class="text-muted">
+              Admin must review and verify student/donor identity before they are searchable by hospitals
+            </small>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table custom-table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Donor ID</th>
+                <th>Name / Roll No</th>
+                <th>Blood Group</th>
+                <th>College / Phone</th>
+                <th>Verification State</th>
+                <th class="text-end">Admin Decision</th>
+              </tr>
+            </thead>
+            <tbody id="adminVerificationQueueBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Central Registry Table -->
+      <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-database text-primary me-2"></i>Complete Verified Donor Database</h5>
+        <div class="table-responsive">
+          <table class="table custom-table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name & City</th>
+                <th>Blood Group</th>
+                <th>Institution</th>
+                <th>Status</th>
+                <th>Trust Score</th>
+                <th>HemoPoints</th>
+              </tr>
+            </thead>
+            <tbody id="adminAllDonorsTableBody">
+              <!-- Injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       6. VIEW: DONOR HUB (view-donor)
+       ========================================== -->
+  <main id="view-donor" class="role-view flex-grow-1 d-none">
+    <div class="container my-4">
+      <div class="row g-4">
+        <!-- Left Column: Impact Card & Wallet -->
+        <div class="col-lg-5">
+          <!-- Impact Card Container -->
+          <div id="donorImpactCardContainer" class="mb-4">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Availability & Quick Actions -->
+          <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-bold">Emergency Dispatch Availability</div>
+                <small class="text-muted">Toggle your readiness for urgent hospital pings</small>
+              </div>
+              <button class="btn btn-sm btn-outline-danger" onclick="HemoApp.toggleDonorAvailability()">
+                <i class="fa-solid fa-arrows-rotate me-1"></i> Toggle Status
+              </button>
+            </div>
+            <div class="mt-3 pt-2 border-top">
+              <button class="btn btn-outline-dark btn-sm w-100" onclick="HemoApp.openCertificateForCurrentDonor()">
+                <i class="fa-solid fa-award text-warning me-1"></i> View / Download Life Saver Certificate
+              </button>
+            </div>
+          </div>
+
+          <!-- HemoPoints Wallet -->
+          <div class="points-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center">
+                <div class="points-coin me-3">
+                  <i class="fa-solid fa-coins"></i>
+                </div>
+                <div>
+                  <div class="text-muted small fw-semibold text-uppercase">SpherePoints Balance</div>
+                  <div class="fs-2 fw-extrabold text-danger" id="walletPointsBalance">450</div>
+                </div>
+              </div>
+              <span class="badge bg-danger px-3 py-2">Donate & Earn</span>
+            </div>
+            <div class="small text-muted mb-2 fw-semibold">Recent Point Ledger:</div>
+            <ul class="list-group list-group-flush rounded-3 bg-white border" id="walletHistoryList" style="max-height: 180px; overflow-y: auto;">
+              <!-- Injected via JS -->
+            </ul>
+          </div>
+
+          <!-- Trust Score Breakdown -->
+          <div id="donorTrustScoreContainer" class="mb-4">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Right Column: Rewards Marketplace & Referral Tree -->
+        <div class="col-lg-7">
+          <!-- Referral Tree Container -->
+          <div id="donorReferralTreeContainer" class="mb-4">
+            <!-- Injected via JS -->
+          </div>
+
+          <!-- Rewards Marketplace -->
+          <div class="card border-0 shadow-sm rounded-4 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-bold mb-0">🎁 Rewards Marketplace</h5>
+                <small class="text-muted">Redeem your earned SpherePoints for non-monetary perks sponsored by partner businesses</small>
+              </div>
+              <span class="badge bg-success-subtle text-success border border-success">
+                Local Business Sponsors
+              </span>
+            </div>
+
+            <div class="row g-3" id="rewardsCatalogGrid">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==========================================
+       7. MODALS
+       ========================================== -->
+
+  <!-- Modal: Donor Registration -->
+  <div class="modal fade" id="registerDonorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-heart-pulse me-2"></i> Join BloodSphere.io Donor Network</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="donorRegisterForm">
+          <div class="modal-body p-4">
+            <p class="small text-muted mb-3">
+              Registering makes you eligible to respond to emergency requests and earn SpherePoints for community perks!
+            </p>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Full Name</label>
+              <input type="text" class="form-control" id="regName" required placeholder="e.g. Tanmay Parandwal">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">College Roll No</label>
+                <input type="text" class="form-control" id="regRollNo" placeholder="e.g. 253135">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Blood Group</label>
+                <select class="form-select" id="regBloodGroup" required>
+                  <option value="O+">O Positive (O+)</option>
+                  <option value="O-">O Negative (O-)</option>
+                  <option value="A+">A Positive (A+)</option>
+                  <option value="A-">A Negative (A-)</option>
+                  <option value="B+">B Positive (B+)</option>
+                  <option value="B-">B Negative (B-)</option>
+                  <option value="AB+">AB Positive (AB+)</option>
+                  <option value="AB-">AB Negative (AB-)</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Institution / College</label>
+              <input type="text" class="form-control" id="regCollege" value="Theem College of Engineering, Boisar">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Contact Phone</label>
+                <input type="tel" class="form-control" id="regPhone" required placeholder="+91 98765 43210">
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Area / Locality</label>
+                <input type="text" class="form-control" id="regArea" required placeholder="e.g. Boisar East">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Referral Code (Optional)</label>
+              <input type="text" class="form-control" id="regReferral" placeholder="e.g. D-253135 (Friend's Donor ID)">
+              <div class="form-text small">Both you and your inviter receive bonus HemoPoints upon verification!</div>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger fw-bold">Submit Registration</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Create Emergency Request -->
+  <div class="modal fade" id="createRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i> Broadcast Emergency Blood Request</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="hospitalRequestForm">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Patient Name</label>
+              <input type="text" class="form-control" id="reqPatientName" required placeholder="e.g. Kishore Joshi">
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Hospital Name & City</label>
+              <input type="text" class="form-control" id="reqHospitalName" required placeholder="e.g. Anand Hospital, Boisar">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Blood Group Needed</label>
+                <select class="form-select" id="reqBloodGroup" required>
+                  <option value="AB-">AB- (Rare Emergency)</option>
+                  <option value="O-">O- (Universal)</option>
+                  <option value="O+">O+</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Units Needed</label>
+                <input type="number" class="form-control" id="reqUnitsNeeded" value="2" min="1" max="10" required>
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-bold">Urgency Level</label>
+                <select class="form-select" id="reqUrgency" required>
+                  <option value="Rare Blood Group">Rare Blood Group (+200 Pts)</option>
+                  <option value="Emergency">Emergency (+150 Pts)</option>
+                  <option value="Standard">Standard (+100 Pts)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-bold">Emergency Contact Phone</label>
+                <input type="tel" class="form-control" id="reqPhone" required placeholder="+91 2525 252111">
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Clinical Notes / Surgery Reason</label>
+              <textarea class="form-control" id="reqNotes" rows="2" placeholder="e.g. Critical trauma resuscitation, bypass surgery."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger fw-bold">Broadcast SOS to Donors</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Life Saver Certificate -->
+  <div class="modal fade" id="certificateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title"><i class="fa-solid fa-award text-warning me-2"></i> Official Life Saver Certificate</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4" id="certificateContainer">
+          <!-- Injected via JS -->
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" onclick="HemoCertificate.printCertificate()">
+            <i class="fa-solid fa-print me-1"></i> Print / Save as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       8. FOOTER
+       ========================================== -->
+  <footer class="bg-dark text-white-50 py-4 mt-auto border-top border-secondary border-opacity-25">
+    <div class="container text-center small">
+      <div class="mb-2">
+        <strong class="text-white">BloodSphere.io - Digital Blood Donation and Emergency Response Platform</strong>
+      </div>
+      <div class="mb-3">
+        H. J. Thim Trust's Theem College of Engineering, Boisar (E), Palghar • Department of Information Technology Engineering
+      </div>
+      <div class="d-flex justify-content-center flex-wrap gap-3 text-white-50">
+        <span>Tanmay Ramesh Parandwal (253135)</span> • 
+        <span>Shaan Dharmendra Mishra (253130)</span> • 
+        <span>Shubham Dibakar Pradhan (253144)</span> • 
+        <span>Sumit Omprakash Pathak (253137)</span>
+      </div>
+      <div class="mt-3 text-muted" style="font-size: 0.75rem;">
+        Guide: Department of Information Technology Engineering Faculty • S.E. Sem-III Mini Project 2026
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/gamification.js"></script>
+  <script src="js/certificate.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
